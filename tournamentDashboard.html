@@ -7,7 +7,7 @@
             button{height:25px; font-size: 20px; vertical-align: middle}
             button.counterSettings{width:25px; font-size: 20px}
             input{height:25px; text-align: center; vertical-align: middle; font-size: 20px}
-            input#startTime{border: none; border-color: transparent; font-size: 50px; height:60px;}
+            input#timeRemaining{border: none; border-color: transparent; font-size: 50px; height:60px;}
             input.counterValueInput{width: 40px}
             input.counterIdInput{caret-color: transparent;}
             input[type="time"]{height:25px;}
@@ -19,7 +19,7 @@
         <div>
             <div class="timerSection">
 
-                <div><input type="time" id="startTime" step="1" value="00:00:00"></div>
+                <div><input type="time" id="timeRemaining" step="1" value="00:00:00" onblur="onTimeRemainingValueChange(event)" onkeypress="handleKeyPress(event)"></div>
                 <div><button id="btnStart" onclick="pausePlayTimer()">PLAY/PAUSE</button><button id="btnStop" onclick="endTimer()">STOP</button></div>
                 
                 <div style="vertical-align: middle"><input type="time" id="addTime" step="1" value="00:00:00" style="vertical-align: middle"><button id="btnAdd" onclick="addTime()" style="vertical-align: middle">+</button></div>
@@ -31,7 +31,7 @@
             <div id="countersSection">
                 
                 <div class="counterSettings" id="counterSettingsTemplate" hidden>
-                    <div><input type="text" disabled class="counterIdInput"><input type="number" class="counterValueInput" value="0" onchange="counterValueInputChange(event)"><button class="counterMinus" onclick="counterMinus(event)">-</button><button class="counterPlus" onclick="counterPlus(event)">+</button></div>
+                    <div><input type="text" disabled class="counterIdInput"><input type="number" class="counterValueInput" value="0" onblur="counterValueInputChange(event)" onkeydown="handleKeyDownEvent(event)" onclick="handleCounterValueClickEvent(event)"><button class="counterMinus" onclick="counterMinus(event)">-</button><button class="counterPlus" onclick="counterPlus(event)">+</button></div>
                     <hr width="50%"/>
                 </div>
                 

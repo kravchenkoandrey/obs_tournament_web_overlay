@@ -12,7 +12,7 @@ addEvent(document, "load", ()=>{
 
 function pausePlayTimer(){
     if(parseInt(timeRemaining) == 0){
-        timeRemaining = stringToTimestamp(document.getElementById("startTime").value);
+        timeRemaining = stringToTimestamp(document.getElementById("timeRemaining").value);
     }
     if (timerIntervalId == undefined){
         timerEndTime = Date.now() + parseInt(timeRemaining);
@@ -33,6 +33,11 @@ function endTimer(){
 function stopTimer(){
     clearInterval(timerIntervalId);
     timerIntervalId = undefined;
+}
+
+function onTimeRemainingValueChange(event){
+    timeRemaining = stringToTimestamp(event.target.value);
+    broadcastChannel.postMessage({command: "update_timer", value: timeRemaining});
 }
 
 function stringToTimestamp(str){
@@ -63,7 +68,7 @@ function updateTimer(){
 
 function updateTimerContainerContent(){
     value = timestampToString(parseInt(timeRemaining));
-    document.getElementById("startTime").value = value;
+    document.getElementById("timeRemaining").value = value;
     
     //
     broadcastChannel.postMessage({command: "update_timer", value: timeRemaining});
@@ -264,4 +269,14 @@ function updateRemoteCounterValue(counterId, value){
     messageData.value = value;
     messageData.id = counterId;
     broadcastChannel.postMessage(messageData);
+}
+
+function handleKeyDownEvent(event){
+    if (event.keyCode === 13){
+        event.target.blur();
+    }
+}
+
+function handleCounterValueClickEvent(event){
+    event.target.select();
 }
