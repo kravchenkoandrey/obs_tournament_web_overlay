@@ -22,7 +22,7 @@
         <div>
             <div class="timerSection">
 
-                <div><input type="time" id="timeRemaining" step="1" value="00:00:00" onblur="onTimeRemainingValueChange(event)" onkeypress="handleKeyDownEvent(event)"></div>
+                <div><input type="time" id="timeRemaining" step="1" value="00:00:00" onblur="onTimeRemainingValueChange(event)" onkeydown="handleKeyDownEvent(event)"></div>
                 <div><button id="btnStart" onclick="pausePlayTimer()">PLAY/PAUSE</button><button id="btnStop" onclick="endTimer()">STOP</button></div>
                 
                 <div style="vertical-align: middle"><input type="time" id="addTime" step="1" value="00:00:00" style="vertical-align: middle"><button id="btnAdd" onclick="addTime()" style="vertical-align: middle">+</button></div>
