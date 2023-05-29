@@ -230,7 +230,7 @@ function trySetCounterValue(counterId, valueName, value){
     let result = false;
     let counter = tryGetCounter(counterId);
     if (counter){
-        counter[valueName] = value;
+        counter[valueName] = (value === NaN || value === "" ? 0: value);
         result = true;
     }
     else{
@@ -255,7 +255,7 @@ function updateCounterValue(id){
     let valueInputs = counterNode.getElementsByClassName("counterValueInput");
 
     if (valueInputs.length > 0){
-        valueInputs[0].value = (value===NaN, 0, value);
+        valueInputs[0].value = value;
         updateRemoteCounterValue(id, value);
     }
     else{
