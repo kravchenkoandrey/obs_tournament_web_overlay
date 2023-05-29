@@ -6,16 +6,14 @@
         <script type="text/javascript" src="./tournamentDashboardController.js"></script>
         <script type="text/javascript" src="./InputMasking.js"></script>
         <style type="text/css">
-            /* body{font-size: 50px;} */
             div{text-align: center; vertical-align: middle; margin-top: 20px; margin-bottom: 20px;}
             button{height:25px; font-size: 20px; vertical-align: middle}
             button.counterSettings{width:25px; font-size: 20px}
-            input{height:25px; text-align: center; vertical-align: middle; font-size: 20px}
-            input#timeRemaining{border: none; border-color: transparent; font-size: 50px; height:60px;}
+            input{height:25px; vertical-align: middle; font-size: 20px; text-align: center;}
+            input#timeRemaining{border: none; text-align: center; border-color: transparent; font-size: 50px; height:60px; width: 200px;}
+            input#addTime{width: 100px;}
             input.counterValueInput{width: 40px}
             input.counterIdInput{caret-color: transparent;}
-            input[type="time"]{height:25px;}
-            input[type="time"]::-webkit-calendar-picker-indicator {background: none; display:none;}
             input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button {-webkit-appearance: none;}
         </style>
     </head>
@@ -23,10 +21,10 @@
         <div>
             <div class="timerSection">
 
-                <div><input type="text" id="timeRemaining" step="1" masking-data='{"valid": "^[0-9][0-9]:[0-5][0-9]:[0-5][0-9]$", "editable": "11011011"}' value="00:00:00" onblur="onTimeRemainingValueChange(event)" onkeydown="handleKeyDownEvent(event)"></div>
+                <div><input type="text" id="timeRemaining" masking-data='{"valid": "^[0-9][0-9]:[0-5][0-9]:[0-5][0-9]$", "editable": "11011011"}' value="00:00:00" onblur="onTimeRemainingValueChange(event)" onkeydown="handleKeyDownEvent(event)"></div>
                 <div><button id="btnStart" onclick="pausePlayTimer()">PLAY/PAUSE</button><button id="btnStop" onclick="endTimer()">STOP</button></div>
                 
-                <div style="vertical-align: middle"><input type="time" id="addTime" step="1" value="00:00:00" style="vertical-align: middle"><button id="btnAdd" onclick="addTime()" style="vertical-align: middle">+</button></div>
+                <div><input type="text" id="addTime" masking-data='{"valid": "^[0-9][0-9]:[0-5][0-9]:[0-5][0-9]$", "editable": "11011011"}' value="00:00:00"><button id="btnAdd" onclick="addTime()">+</button></div>
                 
             </div>
 
