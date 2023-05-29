@@ -7,8 +7,8 @@ const counterPingTimeout = 2000;
 const counterPingInterval = 500;
 const counterPongCheckTimeout = 100;
 
-addEvent(document, "load", ()=>{
-    initializeOnLoad();
+addEvent(document, "DOMContentLoaded", ()=>{
+    initializeOnContentLoad();
 });
 
 function pausePlayTimer(){
@@ -119,7 +119,7 @@ function addEvent(elem, evType, fn) {
 	}
 }
 
-function initializeOnLoad(){
+function initializeOnContentLoad(){
     broadcastChannel.addEventListener("message", (event)=>{
         if(event.data.command == "connect_counter"){
             handleCounterConnectionCommand(event.data.value);

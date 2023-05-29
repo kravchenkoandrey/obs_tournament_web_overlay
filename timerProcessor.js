@@ -3,18 +3,12 @@ var timeRemaining = 0;
 var timerEndTime = 0;
 var timerIntervalId = undefined;
 
-addEvent(document, "load", ()=>{
+addEvent(document, "DOMContentLoaded", ()=>{
     broadcastChannel.addEventListener("message", (event)=>{
         console.log(event.data);
         if(event.data.command == "update_timer"){
             updateTimerContainerContent(event.data.value);
         }
-        // else if(event.data == "start_timer_update"){
-        //     startTimerUpdate();
-        // }
-        // else if(event.data == "stop_timer_update"){
-        //     stopTimerUpdate();
-        // }
     })
 });
 
@@ -28,7 +22,6 @@ function timestampToString(ts){
 }
 
 function updateTimerContainerContent(value){
-    // value = timestampToString(parseInt(localStorage.getItem("obs_tournament_time_remaining")));
     content = timestampToString(parseInt(value));
     document.getElementById("timerContainer").textContent = content;
 }

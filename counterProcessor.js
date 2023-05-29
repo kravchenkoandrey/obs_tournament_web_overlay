@@ -1,8 +1,8 @@
 var value = 0;
 const broadcastChannel = new BroadcastChannel("obs_tournament_broadcast_channel");
 const counterId = getUrlParameter("id");
-addEvent(document, "load", ()=>{
-	initializeOnLoad();
+addEvent(document, "DOMContentLoaded", ()=>{
+	initializeOnContentLoad();
 });
 
 function updateCounterContent(){
@@ -38,7 +38,7 @@ function getUrlParameter(sParam) {
     return false;
 };
 
-function initializeOnLoad(){
+function initializeOnContentLoad(){
 	connectToDashboard();
 	
 	broadcastChannel.addEventListener("message", (event)=>{
