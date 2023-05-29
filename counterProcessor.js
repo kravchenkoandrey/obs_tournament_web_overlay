@@ -62,5 +62,6 @@ function connectToDashboard(){
 }
 
 function sendPong(){
+    console.log("pong");
     broadcastChannel.postMessage({command: "pong_from_counter", value: counterId});
 }

@@ -4,6 +4,7 @@
         <meta http-equiv="Pragma" content="no-cache" />
         <meta http-equiv="Expires" content="0" />
         <script type="text/javascript" src="./tournamentDashboardController.js"></script>
+        <script type="text/javascript" src="./InputMasking.js"></script>
         <style type="text/css">
             /* body{font-size: 50px;} */
             div{text-align: center; vertical-align: middle; margin-top: 20px; margin-bottom: 20px;}
@@ -22,7 +23,7 @@
         <div>
             <div class="timerSection">
 
-                <div><input type="time" id="timeRemaining" step="1" value="00:00:00" onblur="onTimeRemainingValueChange(event)" onkeydown="handleKeyDownEvent(event)"></div>
+                <div><input type="text" id="timeRemaining" step="1" masking-data='{"valid": "^[0-9][0-9]:[0-5][0-9]:[0-5][0-9]$", "editable": "11011011"}' value="00:00:00" onblur="onTimeRemainingValueChange(event)" onkeydown="handleKeyDownEvent(event)"></div>
                 <div><button id="btnStart" onclick="pausePlayTimer()">PLAY/PAUSE</button><button id="btnStop" onclick="endTimer()">STOP</button></div>
                 
                 <div style="vertical-align: middle"><input type="time" id="addTime" step="1" value="00:00:00" style="vertical-align: middle"><button id="btnAdd" onclick="addTime()" style="vertical-align: middle">+</button></div>

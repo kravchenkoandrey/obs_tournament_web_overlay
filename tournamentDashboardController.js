@@ -5,6 +5,7 @@ var timerIntervalId = undefined;
 var counters = new Object;
 const counterPingTimeout = 2000;
 const counterPingInterval = 500;
+const counterPongCheckTimeout = 100;
 
 addEvent(document, "load", ()=>{
     initializeOnLoad();
@@ -130,11 +131,16 @@ function initializeOnLoad(){
 
     broadcastChannel.postMessage({command: "notify_dashboard_ready"});
     setInterval(pingCounters, counterPingInterval);
-    setInterval(checkPongs, counterPingInterval);
+    //setInterval(checkPongs, counterPingInterval);
 }
 
 function pingCounters(){
-    broadcastChannel.postMessage({command: "ping_counters"});    
+    if (Object.keys(counters).length){
+        console.log("ping");
+        broadcastChannel.postMessage({command: "ping_counters"});  
+        setTimeout(checkPongs, counterPongCheckTimeout); 
+    }
+
 }
 
 function handlePongFromCounter(counterId){
