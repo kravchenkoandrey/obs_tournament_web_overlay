@@ -255,7 +255,7 @@ function updateCounterValue(id){
     let valueInputs = counterNode.getElementsByClassName("counterValueInput");
 
     if (valueInputs.length > 0){
-        valueInputs[0].value = value;
+        valueInputs[0].value = (value===NaN, 0, value);
         updateRemoteCounterValue(id, value);
     }
     else{
