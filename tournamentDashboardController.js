@@ -3,13 +3,27 @@ var timeRemaining = 0;
 var timerEndTime = 0;
 var timerIntervalId = undefined;
 var counters = new Object;
-const counterPingTimeout = 2000;
+const counterConnectionTimeout = 2000;
 const counterPingInterval = 500;
 const counterPongCheckTimeout = 100;
 
 addEvent(document, "DOMContentLoaded", ()=>{
     initializeOnContentLoad();
 });
+
+function initializeOnContentLoad(){
+    broadcastChannel.addEventListener("message", (event)=>{
+        if(event.data.command == "connect_counter"){
+            handleCounterConnectionCommand(event.data.value);
+        }
+        else if(event.data.command == "pong_from_counter"){
+            handlePongFromCounter(event.data.value);
+        }
+    });
+
+    broadcastChannel.postMessage({command: "notify_dashboard_ready"});
+    setInterval(pingCounters, counterPingInterval);
+}
 
 function pausePlayTimer(){
     if(parseInt(timeRemaining) == 0){
@@ -90,21 +104,22 @@ function addTime(){
     updateTimer();
 }
 
-function handleCounterConnectionCommand(timerId){
-    if (!counters.hasOwnProperty(timerId)){
+function handleCounterConnectionCommand(counterId){
+    if (!counters.hasOwnProperty(counterId)){
         let counterSection = document.getElementById("countersSection");
         let counterSettingsElement = document.getElementById("counterSettingsTemplate").cloneNode(true);
-        counterSettingsElement.id = timerId;
+        counterSettingsElement.id = counterId;
         counterSettingsElement.removeAttribute("hidden");
         
         let ids = counterSettingsElement.getElementsByClassName("counterIdInput");
         if (ids.length > 0){
-            ids[0].value = timerId;
+            ids[0].value = counterId;
         }
         
         counterSection.appendChild(counterSettingsElement);
-        counters[timerId] = newCounterDataObject();
+        counters[counterId] = newCounterDataObject();
     }
+    updateRemoteCounterValue(counterId, counters[counterId].value)
 }
 
 function addEvent(elem, evType, fn) {
@@ -119,28 +134,30 @@ function addEvent(elem, evType, fn) {
 	}
 }
 
-function initializeOnContentLoad(){
-    broadcastChannel.addEventListener("message", (event)=>{
-        if(event.data.command == "connect_counter"){
-            handleCounterConnectionCommand(event.data.value);
-        }
-        else if(event.data.command == "pong_from_counter"){
-            handlePongFromCounter(event.data.value);
-        }
-    });
-
-    broadcastChannel.postMessage({command: "notify_dashboard_ready"});
-    setInterval(pingCounters, counterPingInterval);
-    //setInterval(checkPongs, counterPingInterval);
-}
-
 function pingCounters(){
     if (Object.keys(counters).length){
-        console.log("ping");
-        broadcastChannel.postMessage({command: "ping_counters"});  
-        setTimeout(checkPongs, counterPongCheckTimeout); 
+        broadcastChannel.postMessage({command: "ping_counters"}); 
+
+        //disabled untill OBS issue #8989 from github is fixed
+        //setTimeout(checkPongs, counterPongCheckTimeout); 
+        //
     }
 
+}
+
+function checkPongs(){
+    let curTime = Date.now();
+    if (curTime - lastSelfPingTimestamp < validationSelfPingTimeout){
+        let ids = Object.keys(counters);
+        ids.forEach(id => {
+            let element = counters[id];
+            if (element.hasOwnProperty("lastPongTime")){
+                if (curTime - element["lastPongTime"] > counterConnectionTimeout){
+                    deleteCounter(id);
+                }
+            }
+        });
+    }
 }
 
 function handlePongFromCounter(counterId){
@@ -151,19 +168,6 @@ function handlePongFromCounter(counterId){
 
 function newCounterDataObject(){
     return {value: 0, lastPongTime: Date.now()};
-}
-
-function checkPongs(){
-    let curTime = Date.now();
-    let ids = Object.keys(counters);
-    ids.forEach(id => {
-        let element = counters[id];
-        if (element.hasOwnProperty("lastPongTime")){
-            if (curTime - element["lastPongTime"] > counterPingTimeout){
-                deleteCounter(id);
-            }
-        }
-    });
 }
 
 function deleteCounter(counterId){
