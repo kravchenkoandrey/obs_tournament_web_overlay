@@ -129,7 +129,9 @@ function handlePlayerConnectionCommand(playerId){
         }
         
         playerSection.appendChild(playerSettingsElement);
-        players[playerId] = newPlayerDataObject();
+        if(!players.hasOwnProperty(playerId)){
+            [playerId] = newPlayerDataObject();
+        }
     }
     updatePlayerRemoteOverlayData(playerId);
 }
