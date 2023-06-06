@@ -116,7 +116,8 @@ function addTime(){
 }
 
 function handlePlayerConnectionCommand(playerId){
-    if (!players.hasOwnProperty(playerId)){
+    // if (!players.hasOwnProperty(playerId)){ 
+    if (!document.getElementById(playerId)){ 
         let playerSection = document.getElementById("playersSection");
         let playerSettingsElement = document.getElementById("playerSettingsTemplate").cloneNode(true);
         playerSettingsElement.id = playerId;
@@ -337,7 +338,6 @@ function updateCookies(){
 
 function loadCookies(){
     let cookies = document.cookie.replace(" ", "").split(";");
-    console.log(cookies);
     cookies.forEach((el)=>{
         let keyValue = el.split("="); 
         if(keyValue[0] == "players"){
