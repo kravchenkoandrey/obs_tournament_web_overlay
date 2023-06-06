@@ -12,6 +12,8 @@ addEvent(document, "DOMContentLoaded", ()=>{
 });
 
 function initializeOnContentLoad(){
+    loadCookies();
+    
     broadcastChannel.addEventListener("message", (event)=>{
         if(event.data.command == "connect_player"){
             handlePlayerConnectionCommand(event.data.value);
@@ -122,15 +124,22 @@ function handlePlayerConnectionCommand(playerId){
     updatePlayerRemoteOverlayData(playerId);
 }
 
-function addEvent(elem, evType, fn) {
+function addEvent(elem = false, evType, fn, params = false) {
+    // console.log("add event!");
+    if(!elem){
+        return;
+    }
 	if (elem.addEventListener) {
-		elem.addEventListener(evType, fn, {"once": true, "capture": true});
+		elem.addEventListener(evType, fn, params ? params : {"once": true, "capture": true});
+        // console.log(1);
 	}
 	else if (elem.attachEvent) {
 		elem.attachEvent('on' + evType, fn);
+        // console.log(2);
 	}
 	else {
 		elem['on' + evType] = fn;
+        // console.log(3);
 	}
 }
 
@@ -320,11 +329,21 @@ function updateCookies(){
     if (!document.cookie){
         document.cookie = "path=/";
     }
-    console.log("------------------------------------");
+    // console.log("------------------------------------");
     let jsonValue = JSON.stringify(players);
-    console.log("JSON: " + jsonValue);
+    // console.log("JSON: " + jsonValue);
     let uriEncodedValue = encodeURIComponent(jsonValue);
-    console.log("URI encoded: " + uriEncodedValue);
+    // console.log("URI encoded: " + uriEncodedValue);
     document.cookie = "players=" + uriEncodedValue;
-    console.log("Cookie: " + document.cookie);
+    // console.log("Cookie: " + document.cookie);
+}
+
+function loadCookies(){
+    document.cookie.replace(" ", "").split(";").forEach((el)=>{
+        let keyValue = el.split("="); 
+        if(keyValue[0] == "players"){
+            // console.log(JSON.parse(decodeURIComponent(keyValue[1])));
+            players = JSON.parse(decodeURIComponent(keyValue[1]));
+        }
+    });
 }
