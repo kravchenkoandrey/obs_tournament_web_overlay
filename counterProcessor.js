@@ -10,9 +10,9 @@ function updateCounterContent(){
     container.textContent = value;
 }
 
-function addEvent(elem, evType, fn) {
+function addEvent(elem = false, evType, fn, params = false) {
 	if (elem.addEventListener) {
-		elem.addEventListener(evType, fn, {"once": true, "capture": true});
+		elem.addEventListener(evType, fn, params); // ? params : {"once": true, "capture": true}
 	}
 	else if (elem.attachEvent) {
 		elem.attachEvent('on' + evType, fn);
@@ -41,7 +41,7 @@ function getUrlParameter(sParam) {
 function initializeOnContentLoad(){
 	connectToDashboard();
 	
-	broadcastChannel.addEventListener("message", (event)=>{
+    addEvent(broadcastChannel, "message", (event)=>{
         if(event.data.command == "notify_dashboard_ready"){
             connectToDashboard();
         }
@@ -55,6 +55,21 @@ function initializeOnContentLoad(){
             }
 		}
     });
+
+	// broadcastChannel.addEventListener("message", (event)=>{
+    //     if(event.data.command == "notify_dashboard_ready"){
+    //         connectToDashboard();
+    //     }
+	// 	else if(event.data.command == "ping_players"){
+	// 		sendPong();
+	// 	}
+	// 	else if(event.data.command == "update_player"){
+	// 		if (event.data.hasOwnProperty("value") && event.data.hasOwnProperty("id") && event.data["id"] == playerId){
+    //             value = event.data["value"];
+    //             updateCounterContent();
+    //         }
+	// 	}
+    // });
 }
 
 function connectToDashboard(){
@@ -62,6 +77,5 @@ function connectToDashboard(){
 }
 
 function sendPong(){
-    console.log("pong");
     broadcastChannel.postMessage({command: "pong_from_player", value: playerId});
 }

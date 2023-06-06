@@ -13,8 +13,8 @@ addEvent(document, "DOMContentLoaded", ()=>{
 
 function initializeOnContentLoad(){
     loadCookies();
-    
-    broadcastChannel.addEventListener("message", (event)=>{
+
+    addEvent(broadcastChannel, "message", (event)=>{
         if(event.data.command == "connect_player"){
             handlePlayerConnectionCommand(event.data.value);
         }
@@ -22,6 +22,15 @@ function initializeOnContentLoad(){
             handlePongFromPlayer(event.data.value);
         }
     });
+
+    // broadcastChannel.addEventListener("message", (event)=>{
+    //     if(event.data.command == "connect_player"){
+    //         handlePlayerConnectionCommand(event.data.value);
+    //     }
+    //     else if(event.data.command == "pong_from_player"){
+    //         handlePongFromPlayer(event.data.value);
+    //     }
+    // });
 
     broadcastChannel.postMessage({command: "notify_dashboard_ready"});
     setInterval(pingPlayers, counterPingInterval);
@@ -125,21 +134,14 @@ function handlePlayerConnectionCommand(playerId){
 }
 
 function addEvent(elem = false, evType, fn, params = false) {
-    // console.log("add event!");
-    if(!elem){
-        return;
-    }
 	if (elem.addEventListener) {
-		elem.addEventListener(evType, fn, params ? params : {"once": true, "capture": true});
-        // console.log(1);
+		elem.addEventListener(evType, fn, params); // ? params : {"once": true, "capture": true}
 	}
 	else if (elem.attachEvent) {
 		elem.attachEvent('on' + evType, fn);
-        // console.log(2);
 	}
 	else {
 		elem['on' + evType] = fn;
-        // console.log(3);
 	}
 }
 
@@ -270,7 +272,6 @@ function getParentPlayerSettingsDiv(element){
 }
 
 function getPlayerIdByValueChangeEvent(event){
-    // let playerNode = event.target.parentNode.parentNode.parentNode;
     let playerNode = getParentPlayerSettingsDiv(event.target);
     return playerNode.getAttribute('id');
 }
@@ -329,21 +330,19 @@ function updateCookies(){
     if (!document.cookie){
         document.cookie = "path=/";
     }
-    // console.log("------------------------------------");
     let jsonValue = JSON.stringify(players);
-    // console.log("JSON: " + jsonValue);
     let uriEncodedValue = encodeURIComponent(jsonValue);
-    // console.log("URI encoded: " + uriEncodedValue);
     document.cookie = "players=" + uriEncodedValue;
-    // console.log("Cookie: " + document.cookie);
 }
 
 function loadCookies(){
-    document.cookie.replace(" ", "").split(";").forEach((el)=>{
+    let cookies = document.cookie.replace(" ", "").split(";");
+    console.log(cookies);
+    cookies.forEach((el)=>{
         let keyValue = el.split("="); 
         if(keyValue[0] == "players"){
-            // console.log(JSON.parse(decodeURIComponent(keyValue[1])));
             players = JSON.parse(decodeURIComponent(keyValue[1]));
+            console.log(players);
         }
     });
 }

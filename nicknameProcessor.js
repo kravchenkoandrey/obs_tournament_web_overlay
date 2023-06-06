@@ -10,9 +10,9 @@ function updateNicknameContent(){
     container.textContent = value ? value : "ID: " + getUrlParameter("id");
 }
 
-function addEvent(elem, evType, fn) {
+function addEvent(elem = false, evType, fn, params = false) {
 	if (elem.addEventListener) {
-		elem.addEventListener(evType, fn, {"once": true, "capture": true});
+		elem.addEventListener(evType, fn, params); // ? params : {"once": true, "capture": true}
 	}
 	else if (elem.attachEvent) {
 		elem.attachEvent('on' + evType, fn);
@@ -42,7 +42,7 @@ function initializeOnContentLoad(){
     updateNicknameContent();
 	connectToDashboard();
 	
-	broadcastChannel.addEventListener("message", (event)=>{
+    addEvent(broadcastChannel, "message", (event)=>{
         if(event.data.command == "notify_dashboard_ready"){
             connectToDashboard();
         }
@@ -56,6 +56,21 @@ function initializeOnContentLoad(){
             }
 		}
     });
+
+	// broadcastChannel.addEventListener("message", (event)=>{
+    //     if(event.data.command == "notify_dashboard_ready"){
+    //         connectToDashboard();
+    //     }
+	// 	else if(event.data.command == "ping_players"){
+	// 		sendPong();
+	// 	}
+	// 	else if(event.data.command == "update_player"){
+	// 		if (event.data.hasOwnProperty("nickname") && event.data.hasOwnProperty("id") && event.data["id"] == playerId){
+    //             value = event.data["nickname"];
+    //             updateNicknameContent();
+    //         }
+	// 	}
+    // });
 }
 
 function connectToDashboard(){
