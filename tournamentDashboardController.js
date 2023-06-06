@@ -2,7 +2,7 @@ const broadcastChannel = new BroadcastChannel("obs_tournament_broadcast_channel"
 var timeRemaining = 0;
 var timerEndTime = 0;
 var timerIntervalId = undefined;
-var counters = new Object;
+var players = new Object;
 const counterConnectionTimeout = 2000;
 const counterPingInterval = 500;
 const counterPongCheckTimeout = 100;
@@ -13,16 +13,16 @@ addEvent(document, "DOMContentLoaded", ()=>{
 
 function initializeOnContentLoad(){
     broadcastChannel.addEventListener("message", (event)=>{
-        if(event.data.command == "connect_counter"){
-            handleCounterConnectionCommand(event.data.value);
+        if(event.data.command == "connect_player"){
+            handlePlayerConnectionCommand(event.data.value);
         }
-        else if(event.data.command == "pong_from_counter"){
-            handlePongFromCounter(event.data.value);
+        else if(event.data.command == "pong_from_player"){
+            handlePongFromPlayer(event.data.value);
         }
     });
 
     broadcastChannel.postMessage({command: "notify_dashboard_ready"});
-    setInterval(pingCounters, counterPingInterval);
+    setInterval(pingPlayers, counterPingInterval);
 }
 
 function pausePlayTimer(){
@@ -104,22 +104,22 @@ function addTime(){
     updateTimer();
 }
 
-function handleCounterConnectionCommand(counterId){
-    if (!counters.hasOwnProperty(counterId)){
-        let counterSection = document.getElementById("countersSection");
-        let counterSettingsElement = document.getElementById("counterSettingsTemplate").cloneNode(true);
-        counterSettingsElement.id = counterId;
-        counterSettingsElement.removeAttribute("hidden");
+function handlePlayerConnectionCommand(playerId){
+    if (!players.hasOwnProperty(playerId)){
+        let playerSection = document.getElementById("playersSection");
+        let playerSettingsElement = document.getElementById("playerSettingsTemplate").cloneNode(true);
+        playerSettingsElement.id = playerId;
+        playerSettingsElement.removeAttribute("hidden");
         
-        let ids = counterSettingsElement.getElementsByClassName("counterIdInput");
+        let ids = playerSettingsElement.getElementsByClassName("playerIdInput");
         if (ids.length > 0){
-            ids[0].value = counterId;
+            ids[0].value = "ID: " + playerId;
         }
         
-        counterSection.appendChild(counterSettingsElement);
-        counters[counterId] = newCounterDataObject();
+        playerSection.appendChild(playerSettingsElement);
+        players[playerId] = newPlayerDataObject();
     }
-    updateRemoteCounterValue(counterId, counters[counterId].value)
+    updatePlayerRemoteOverlayData(playerId);
 }
 
 function addEvent(elem, evType, fn) {
@@ -134,9 +134,9 @@ function addEvent(elem, evType, fn) {
 	}
 }
 
-function pingCounters(){
-    if (Object.keys(counters).length){
-        broadcastChannel.postMessage({command: "ping_counters"}); 
+function pingPlayers(){
+    if (Object.keys(players).length){
+        broadcastChannel.postMessage({command: "ping_players"}); 
 
         //disabled untill OBS issue #8989 from github is fixed
         //setTimeout(checkPongs, counterPongCheckTimeout); 
@@ -148,32 +148,32 @@ function pingCounters(){
 function checkPongs(){
     let curTime = Date.now();
     if (curTime - lastSelfPingTimestamp < validationSelfPingTimeout){
-        let ids = Object.keys(counters);
+        let ids = Object.keys(players);
         ids.forEach(id => {
-            let element = counters[id];
+            let element = players[id];
             if (element.hasOwnProperty("lastPongTime")){
                 if (curTime - element["lastPongTime"] > counterConnectionTimeout){
-                    deleteCounter(id);
+                    deletePlayer(id);
                 }
             }
         });
     }
 }
 
-function handlePongFromCounter(counterId){
-    if (counters.hasOwnProperty(counterId)){
-        counters[counterId]["lastPongTime"] = Date.now();
+function handlePongFromPlayer(playerId){
+    if (players.hasOwnProperty(playerId)){
+        players[playerId]["lastPongTime"] = Date.now();
     }
 }
 
-function newCounterDataObject(){
-    return {value: 0, lastPongTime: Date.now()};
+function newPlayerDataObject(){
+    return {value: 0, lastPongTime: Date.now(), nickname: ""};
 }
 
-function deleteCounter(counterId){
-    let element = document.getElementById(counterId);
+function deletePlayer(playerId){
+    let element = document.getElementById(playerId);
     element.parentNode.removeChild(element);  
-    delete counters[counterId];  
+    delete players[playerId];  
 }
 
 function counterPlus(event){
@@ -190,38 +190,38 @@ function counterValueInputChange(event){
 }
 
 function setCounterValueByEvent(event, value, isValueDelta = false){
-    let counterId = getCounterIdByValueChangeEvent(event);
-    if (!counterId){
-        console.log("Can't find counter id by value change event");
+    let playerId = getPlayerIdByValueChangeEvent(event);
+    if (!playerId){
+        console.log("Can't find player id by value change event");
         return;
     }
-    let currentValue = isValueDelta ? tryGetCounterValue(counterId, "value") : 0;
+    let currentValue = isValueDelta ? tryGetCounterValue(playerId, "value") : 0;
     if (currentValue === false){
-        console.log("Can't get value of counter " + counterId);
+        console.log("Can't get value of counter " + playerId);
         return;        
     }
-    if (trySetCounterValue(counterId, "value", currentValue + value)){
-        updateCounterValue(counterId);
+    if (trySetPlayerPropertyValue(playerId, "value", currentValue + value)){
+        updateCounterValue(playerId);
     }
     else{
-        console.log("Can't set value of counter " + counterId);
+        console.log("Can't set value of counter " + playerId);
     }
 }
 
-function tryGetCounter(counterId){
+function tryGetPlayer(playerId){
     let result = undefined;
-    if (counters.hasOwnProperty(counterId)){
-        result = counters[counterId];
+    if (players.hasOwnProperty(playerId)){
+        result = players[playerId];
     }
     else{
-        console.log("Can't find counter by id " + counterId);    
+        console.log("Can't find player by id " + playerId);    
     }
     return result;
 }
 
 function tryGetCounterValue(counterId, valueName){
     let result = undefined;
-    let counter = tryGetCounter(counterId);
+    let counter = tryGetPlayer(counterId);
     if (counter){
         if(counter.hasOwnProperty(valueName)){
             result = counter[valueName];
@@ -236,48 +236,62 @@ function tryGetCounterValue(counterId, valueName){
     return result;
 }
 
-function trySetCounterValue(counterId, valueName, value){
+function trySetPlayerPropertyValue(playerId, property, value){
     let result = false;
-    let counter = tryGetCounter(counterId);
+    let counter = tryGetPlayer(playerId);
     if (counter){
-        counter[valueName] = (value === NaN || value === "" ? 0: value);
+        counter[property] = (value === NaN || value === "" ? 0: value);
         result = true;
     }
     else{
-        console.log("Can't find counter by id " + counterId);
+        console.log("Can't find counter by id " + playerId);
     }
     return result;
 }
 
-function getCounterIdByValueChangeEvent(event){
-    let counterNode = event.target.parentNode.parentNode;
-    return counterNode.getAttribute('id');
+function getParentPlayerSettingsDiv(element){
+    let currentElement = element.parentElement;
+    while (currentElement && currentElement.tagName.toUpperCase() == "DIV"){
+        if (currentElement.getAttribute("class") == "playerSettings"){
+            return currentElement;
+        }
+        currentElement = currentElement.parentElement;
+    }
+    return undefined;
 }
 
-function updateCounterValue(id){    
-    let value = tryGetCounterValue(id, "value");
+function getPlayerIdByValueChangeEvent(event){
+    // let playerNode = event.target.parentNode.parentNode.parentNode;
+    let playerNode = getParentPlayerSettingsDiv(event.target);
+    return playerNode.getAttribute('id');
+}
+
+function updateCounterValue(playerId){    
+    let value = tryGetCounterValue(playerId, "value");
     if (value === false){
-        console.log("Can't get value of counter " + counterId);
+        console.log("Can't get value of counter " + playerId);
         return;
     }
     
-    let counterNode = document.getElementById(id);
+    let counterNode = document.getElementById(playerId);
     let valueInputs = counterNode.getElementsByClassName("counterValueInput");
 
     if (valueInputs.length > 0){
         valueInputs[0].value = value;
-        updateRemoteCounterValue(id, value);
+        updatePlayerRemoteOverlayData(playerId);
+        updateCookies();
     }
     else{
-        console.log("Can't find node by class name counterValueInput for counter " + counterId);
+        console.log("Can't find node by class name counterValueInput for counter " + playerId);
     }
 }
 
-function updateRemoteCounterValue(counterId, value){
+function updatePlayerRemoteOverlayData(playerId){
     let messageData = new Object;
-    messageData.command = "update_counter";
-    messageData.value = value;
-    messageData.id = counterId;
+    messageData.command = "update_player";
+    messageData.value = players[playerId].value;
+    messageData.nickname = players[playerId].nickname;
+    messageData.id = playerId;
     broadcastChannel.postMessage(messageData);
 }
 
@@ -289,4 +303,28 @@ function handleKeyDownEvent(event){
 
 function handleCounterValueClickEvent(event){
     event.target.select();
+}
+
+function nicknameValueInputChange(event){
+    let playerId = getPlayerIdByValueChangeEvent(event);
+    if (!playerId){
+        console.log("Can't find player id by value change event");
+        return;
+    }
+    trySetPlayerPropertyValue(playerId, "nickname", event.target.value); 
+    updatePlayerRemoteOverlayData(playerId);
+    updateCookies(); 
+}
+
+function updateCookies(){
+    if (!document.cookie){
+        document.cookie = "path=/";
+    }
+    console.log("------------------------------------");
+    let jsonValue = JSON.stringify(players);
+    console.log("JSON: " + jsonValue);
+    let uriEncodedValue = encodeURIComponent(jsonValue);
+    console.log("URI encoded: " + uriEncodedValue);
+    document.cookie = "players=" + uriEncodedValue;
+    console.log("Cookie: " + document.cookie);
 }

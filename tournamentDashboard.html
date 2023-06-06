@@ -7,13 +7,14 @@
         <script type="text/javascript" src="./InputMasking.js"></script>
         <style type="text/css">
             div{text-align: center; vertical-align: middle; margin-top: 20px; margin-bottom: 20px;}
+            div.counterControls{display: inline-block}
             button{height:25px; font-size: 20px; vertical-align: middle}
-            button.counterSettings{width:25px; font-size: 20px}
+            button.playerSettings{width:25px; font-size: 20px}
             input{height:25px; vertical-align: middle; font-size: 20px; text-align: center;}
             input#timeRemaining{border: none; text-align: center; border-color: transparent; font-size: 50px; height:60px; width: 200px;}
             input#addTime{width: 100px;}
             input.counterValueInput{width: 40px}
-            input.counterIdInput{caret-color: transparent;}
+            input.playerIdInput{caret-color: transparent; width: 100px}
             input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button {-webkit-appearance: none;}
         </style>
     </head>
@@ -30,10 +31,17 @@
 
             <hr/>
 
-            <div id="countersSection">
+            <div id="playersSection">
                 
-                <div class="counterSettings" id="counterSettingsTemplate" hidden>
-                    <div><input type="text" disabled class="counterIdInput"><input type="number" class="counterValueInput" value="0" onblur="counterValueInputChange(event)" onkeydown="handleKeyDownEvent(event)" onclick="handleCounterValueClickEvent(event)"><button class="counterMinus" onclick="counterMinus(event)">-</button><button class="counterPlus" onclick="counterPlus(event)">+</button></div>
+                <div class="playerSettings" id="playerSettingsTemplate" hidden>
+                    <div>
+                        <input type="text" disabled class="playerIdInput"><input type="text" class="nicknameInput" placeholder="nickname" onblur="nicknameValueInputChange(event)" onkeydown="handleKeyDownEvent(event)">
+                        <div class="counterControls">
+                            <input type="number" class="counterValueInput" value="0" onblur="counterValueInputChange(event)" onkeydown="handleKeyDownEvent(event)" onclick="handleCounterValueClickEvent(event)">
+                            <button class="counterMinus" onclick="counterMinus(event)">-</button><button class="counterPlus" onclick="counterPlus(event)">+</button>
+                        </div>
+                    </div>
+
                     <hr width="50%"/>
                 </div>
                 

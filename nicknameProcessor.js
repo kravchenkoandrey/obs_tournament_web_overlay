@@ -1,13 +1,13 @@
-var value = 0;
+var value = "";
 const broadcastChannel = new BroadcastChannel("obs_tournament_broadcast_channel");
 const playerId = getUrlParameter("id");
 addEvent(document, "DOMContentLoaded", ()=>{
 	initializeOnContentLoad();
 });
 
-function updateCounterContent(){
+function updateNicknameContent(){
     container = document.getElementById("valueContainer");
-    container.textContent = value;
+    container.textContent = value ? value : "ID: " + getUrlParameter("id");
 }
 
 function addEvent(elem, evType, fn) {
@@ -39,6 +39,7 @@ function getUrlParameter(sParam) {
 };
 
 function initializeOnContentLoad(){
+    updateNicknameContent();
 	connectToDashboard();
 	
 	broadcastChannel.addEventListener("message", (event)=>{
@@ -49,9 +50,9 @@ function initializeOnContentLoad(){
 			sendPong();
 		}
 		else if(event.data.command == "update_player"){
-			if (event.data.hasOwnProperty("value") && event.data.hasOwnProperty("id") && event.data["id"] == playerId){
-                value = event.data["value"];
-                updateCounterContent();
+			if (event.data.hasOwnProperty("nickname") && event.data.hasOwnProperty("id") && event.data["id"] == playerId){
+                value = event.data["nickname"];
+                updateNicknameContent();
             }
 		}
     });
