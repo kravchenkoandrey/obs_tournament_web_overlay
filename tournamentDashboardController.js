@@ -132,8 +132,11 @@ function handlePlayerConnectionCommand(playerId){
         if(!players.hasOwnProperty(playerId)){
             players[playerId] = newPlayerDataObject();
         }
+        updateCounterPresentation(playerId);
+        updateNicknamePresentation(playerId);
     }
     updatePlayerRemoteOverlayData(playerId);
+    updateCookies();
 }
 
 function addEvent(elem = false, evType, fn, params = false) {
@@ -209,13 +212,15 @@ function setCounterValueByEvent(event, value, isValueDelta = false){
         console.log("Can't find player id by value change event");
         return;
     }
-    let currentValue = isValueDelta ? tryGetCounterValue(playerId, "value") : 0;
+    let currentValue = isValueDelta ? tryGetPlayerPropertyValue(playerId, "value") : 0;
     if (currentValue === false){
         console.log("Can't get value of counter " + playerId);
         return;        
     }
     if (trySetPlayerPropertyValue(playerId, "value", currentValue + value)){
-        updateCounterValue(playerId);
+        updateCounterPresentation(playerId);
+        updatePlayerRemoteOverlayData(playerId);
+        updateCookies();
     }
     else{
         console.log("Can't set value of counter " + playerId);
@@ -233,7 +238,7 @@ function tryGetPlayer(playerId){
     return result;
 }
 
-function tryGetCounterValue(counterId, valueName){
+function tryGetPlayerPropertyValue(counterId, valueName){
     let result = undefined;
     let counter = tryGetPlayer(counterId);
     if (counter){
@@ -279,23 +284,44 @@ function getPlayerIdByValueChangeEvent(event){
     return playerNode.getAttribute('id');
 }
 
-function updateCounterValue(playerId){    
-    let value = tryGetCounterValue(playerId, "value");
+function updateNicknamePresentation(playerId){    
+    let nickname = tryGetPlayerPropertyValue(playerId, "nickname");
+    if (nickname === false){
+        console.log("Can't get nickname of player " + playerId);
+        return;
+    }
+
+    let playerDataNode = document.getElementById(playerId);
+    let nicknameInputs = playerDataNode.getElementsByClassName("nicknameInput");
+
+    if (nicknameInputs.length > 0){
+        nicknameInputs[0].value = nickname;
+        // updatePlayerRemoteOverlayData(playerId);
+        // updateCookies();
+    }
+    else{
+        console.log("Can't find node by class name nicknameInput for player " + playerId);
+    }
+
+}
+
+function updateCounterPresentation(playerId){    
+    let value = tryGetPlayerPropertyValue(playerId, "value");
     if (value === false){
         console.log("Can't get value of counter " + playerId);
         return;
     }
     
-    let counterNode = document.getElementById(playerId);
-    let valueInputs = counterNode.getElementsByClassName("counterValueInput");
+    let playerDataNode = document.getElementById(playerId);
+    let valueInputs = playerDataNode.getElementsByClassName("counterValueInput");
 
     if (valueInputs.length > 0){
         valueInputs[0].value = value;
-        updatePlayerRemoteOverlayData(playerId);
-        updateCookies();
+        // updatePlayerRemoteOverlayData(playerId);
+        // updateCookies();
     }
     else{
-        console.log("Can't find node by class name counterValueInput for counter " + playerId);
+        console.log("Can't find node by class name counterValueInput for player " + playerId);
     }
 }
 
