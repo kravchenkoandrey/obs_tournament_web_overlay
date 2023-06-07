@@ -139,9 +139,9 @@ function handlePlayerConnectionCommand(playerId){
     updateCookies();
 }
 
-function addEvent(elem = false, evType, fn, params = false) {
+function addEvent(elem = false, evType, fn, params) {
 	if (elem.addEventListener) {
-		elem.addEventListener(evType, fn, params); // ? params : {"once": true, "capture": true}
+		elem.addEventListener(evType, fn, params);
 	}
 	else if (elem.attachEvent) {
 		elem.attachEvent('on' + evType, fn);
