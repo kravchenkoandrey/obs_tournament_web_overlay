@@ -122,13 +122,9 @@ let inputMaskingModule = {
                 len = el.value.length;
                 normalizedValue = el.value.replace(/\r\n/g, "\n");
 
-                // Create a working TextRange that lives only in the input
                 textInputRange = el.createTextRange();
                 textInputRange.moveToBookmark(range.getBookmark());
 
-                // Check if the start and end of the selection are at the very end
-                // of the input, since moveStart/moveEnd doesn't return what we want
-                // in those cases
                 endRange = el.createTextRange();
                 endRange.collapse(false);
 

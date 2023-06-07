@@ -23,15 +23,6 @@ function initializeOnContentLoad(){
         }
     });
 
-    // broadcastChannel.addEventListener("message", (event)=>{
-    //     if(event.data.command == "connect_player"){
-    //         handlePlayerConnectionCommand(event.data.value);
-    //     }
-    //     else if(event.data.command == "pong_from_player"){
-    //         handlePongFromPlayer(event.data.value);
-    //     }
-    // });
-
     broadcastChannel.postMessage({command: "notify_dashboard_ready"});
     setInterval(pingPlayers, counterPingInterval);
 }
@@ -95,10 +86,7 @@ function updateTimer(){
 function updateTimerContainerContent(){
     value = timestampToString(parseInt(timeRemaining));
     document.getElementById("timeRemaining").value = value;
-    
-    //
     broadcastChannel.postMessage({command: "update_timer", value: timeRemaining});
-    //
 }
 
 function lZ(number){
@@ -115,8 +103,7 @@ function addTime(){
     updateTimer();
 }
 
-function handlePlayerConnectionCommand(playerId){
-    // if (!players.hasOwnProperty(playerId)){ 
+function handlePlayerConnectionCommand(playerId){ 
     if (!document.getElementById(playerId)){ 
         let playerSection = document.getElementById("playersSection");
         let playerSettingsElement = document.getElementById("playerSettingsTemplate").cloneNode(true);
@@ -154,27 +141,22 @@ function addEvent(elem = false, evType, fn, params) {
 function pingPlayers(){
     if (Object.keys(players).length){
         broadcastChannel.postMessage({command: "ping_players"}); 
-
-        //disabled untill OBS issue #8989 from github is fixed
-        //setTimeout(checkPongs, counterPongCheckTimeout); 
-        //
+        setTimeout(checkPongs, counterPongCheckTimeout); 
     }
 
 }
 
 function checkPongs(){
     let curTime = Date.now();
-    if (curTime - lastSelfPingTimestamp < validationSelfPingTimeout){
-        let ids = Object.keys(players);
-        ids.forEach(id => {
-            let element = players[id];
-            if (element.hasOwnProperty("lastPongTime")){
-                if (curTime - element["lastPongTime"] > counterConnectionTimeout){
-                    deletePlayer(id);
-                }
+    let ids = Object.keys(players);
+    ids.forEach(id => {
+        let element = players[id];
+        if (element.hasOwnProperty("lastPongTime")){
+            if (curTime - element["lastPongTime"] > counterConnectionTimeout){
+                hidePlayer(id);
             }
-        });
-    }
+        }
+    });
 }
 
 function handlePongFromPlayer(playerId){
@@ -187,11 +169,15 @@ function newPlayerDataObject(){
     return {value: 0, lastPongTime: Date.now(), nickname: ""};
 }
 
-function deletePlayer(playerId){
-    let element = document.getElementById(playerId);
-    element.parentNode.removeChild(element);  
+function deletePlayer(playerId){ 
+    hidePlayer(playerId);
     delete players[playerId];  
 }
+
+function hidePlayer(playerId){
+    let element = document.getElementById(playerId);
+    element.parentNode.removeChild(element);
+} 
 
 function counterPlus(event){
     setCounterValueByEvent(event, 1, true);
@@ -296,8 +282,6 @@ function updateNicknamePresentation(playerId){
 
     if (nicknameInputs.length > 0){
         nicknameInputs[0].value = nickname;
-        // updatePlayerRemoteOverlayData(playerId);
-        // updateCookies();
     }
     else{
         console.log("Can't find node by class name nicknameInput for player " + playerId);
@@ -317,8 +301,6 @@ function updateCounterPresentation(playerId){
 
     if (valueInputs.length > 0){
         valueInputs[0].value = value;
-        // updatePlayerRemoteOverlayData(playerId);
-        // updateCookies();
     }
     else{
         console.log("Can't find node by class name counterValueInput for player " + playerId);

@@ -1,18 +1,18 @@
 var value = "";
 const broadcastChannel = new BroadcastChannel("obs_tournament_broadcast_channel");
-const playerId = getUrlParameter("id");
+const playerId = getUriParameter("id");
 addEvent(document, "DOMContentLoaded", ()=>{
 	initializeOnContentLoad();
 });
 
 function updateNicknameContent(){
     container = document.getElementById("valueContainer");
-    container.textContent = value ? value : "ID: " + getUrlParameter("id");
+    container.textContent = value ? value : "ID: " + getUriParameter("id");
 }
 
-function addEvent(elem = false, evType, fn, params = false) {
+function addEvent(elem = false, evType, fn, params) {
 	if (elem.addEventListener) {
-		elem.addEventListener(evType, fn, params); // ? params : {"once": true, "capture": true}
+		elem.addEventListener(evType, fn, params);
 	}
 	else if (elem.attachEvent) {
 		elem.attachEvent('on' + evType, fn);
@@ -22,7 +22,7 @@ function addEvent(elem = false, evType, fn, params = false) {
 	}
 }
 
-function getUrlParameter(sParam) {
+function getUriParameter(sParam) {
     var sPageURL = window.location.search.substring(1),
         sURLVariables = sPageURL.split('&'),
         sParameterName,
@@ -56,21 +56,6 @@ function initializeOnContentLoad(){
             }
 		}
     });
-
-	// broadcastChannel.addEventListener("message", (event)=>{
-    //     if(event.data.command == "notify_dashboard_ready"){
-    //         connectToDashboard();
-    //     }
-	// 	else if(event.data.command == "ping_players"){
-	// 		sendPong();
-	// 	}
-	// 	else if(event.data.command == "update_player"){
-	// 		if (event.data.hasOwnProperty("nickname") && event.data.hasOwnProperty("id") && event.data["id"] == playerId){
-    //             value = event.data["nickname"];
-    //             updateNicknameContent();
-    //         }
-	// 	}
-    // });
 }
 
 function connectToDashboard(){
