@@ -224,28 +224,28 @@ function tryGetPlayer(playerId){
     return result;
 }
 
-function tryGetPlayerPropertyValue(counterId, valueName){
+function tryGetPlayerPropertyValue(playerId, valueName){
     let result = undefined;
-    let counter = tryGetPlayer(counterId);
-    if (counter){
-        if(counter.hasOwnProperty(valueName)){
-            result = counter[valueName];
+    let player = tryGetPlayer(playerId);
+    if (player){
+        if(player.hasOwnProperty(valueName)){
+            result = player[valueName];
         }
         else{
-            console.log("Can't find property " + valueName + " of counter " + counterId);    
+            console.log("Can't find property " + valueName + " of counter " + playerId);    
         }
     }
     else{
-        console.log("Can't find counter by id " + counterId);
+        console.log("Can't find counter by id " + playerId);
     }
     return result;
 }
 
 function trySetPlayerPropertyValue(playerId, property, value){
     let result = false;
-    let counter = tryGetPlayer(playerId);
-    if (counter){
-        counter[property] = (value === NaN || value === "" ? 0: value);
+    let player = tryGetPlayer(playerId);
+    if (player){
+        player[property] = (value);
         result = true;
     }
     else{
@@ -332,7 +332,7 @@ function nicknameValueInputChange(event){
         console.log("Can't find player id by value change event");
         return;
     }
-    trySetPlayerPropertyValue(playerId, "nickname", event.target.value ? event.target.value : ""); 
+    trySetPlayerPropertyValue(playerId, "nickname", event.target.value); 
     updatePlayerRemoteOverlayData(playerId);
     updateCookies(); 
 }
