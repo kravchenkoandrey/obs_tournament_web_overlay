@@ -332,7 +332,7 @@ function nicknameValueInputChange(event){
         console.log("Can't find player id by value change event");
         return;
     }
-    trySetPlayerPropertyValue(playerId, "nickname", event.target.value); 
+    trySetPlayerPropertyValue(playerId, "nickname", event.target.value ? event.target.value : ""); 
     updatePlayerRemoteOverlayData(playerId);
     updateCookies(); 
 }
