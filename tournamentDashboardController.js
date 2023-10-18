@@ -16,7 +16,7 @@ function initializeOnContentLoad(){
 
     addEvent(broadcastChannel, "message", (event)=>{
         if(event.data.command == "connect_player"){
-            handlePlayerConnectionCommand(event.data.value);
+            handlePlayerConnection(event.data.value);
         }
         else if(event.data.command == "pong_from_player"){
             handlePongFromPlayer(event.data.value);
@@ -103,7 +103,7 @@ function addTime(){
     updateTimer();
 }
 
-function handlePlayerConnectionCommand(playerId){ 
+function handlePlayerConnection(playerId){ 
     if (!document.querySelector('[player_data_id=\"' + playerId + '\"]')){ 
         let playerSection = document.getElementById("playersSection");
         let playerSettingsElement = document.getElementById("playerSettingsTemplate").cloneNode(true);
@@ -165,9 +165,10 @@ function checkPongs(){
 }
 
 function handlePongFromPlayer(playerId){
-    if (players.hasOwnProperty(playerId)){
-        players[playerId]["lastPongTime"] = Date.now();
+    if (!players.hasOwnProperty(playerId) || players[playerId]["hidden"]){
+        handlePlayerConnection(playerId);
     }
+    players[playerId]["lastPongTime"] = Date.now();
 }
 
 function newPlayerDataObject(){
