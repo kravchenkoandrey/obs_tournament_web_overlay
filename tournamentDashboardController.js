@@ -104,10 +104,11 @@ function addTime(){
 }
 
 function handlePlayerConnectionCommand(playerId){ 
-    if (!document.getElementById(playerId)){ 
+    if (!document.querySelector('[player_data_id=\"' + playerId + '\"]')){ 
         let playerSection = document.getElementById("playersSection");
         let playerSettingsElement = document.getElementById("playerSettingsTemplate").cloneNode(true);
-        playerSettingsElement.id = playerId;
+        playerSettingsElement.removeAttribute('id');
+        playerSettingsElement.setAttribute("player_data_id", playerId);
         playerSettingsElement.removeAttribute("hidden");
         
         let ids = playerSettingsElement.getElementsByClassName("playerIdInput");
@@ -116,7 +117,7 @@ function handlePlayerConnectionCommand(playerId){
         }
         
         playerSection.appendChild(playerSettingsElement);
-        sortChildsByAttributeValue(playerSection, "id");
+        sortChildsByAttributeValue(playerSection, "player_data_id");
         if(!players.hasOwnProperty(playerId)){
             players[playerId] = newPlayerDataObject();
         }
@@ -181,7 +182,7 @@ function deletePlayer(playerId){
 function hidePlayer(playerId){
     let playerData = players[playerId];
     playerData["hidden"] = true;
-    let element = document.getElementById(playerId);
+    let element = document.querySelector('[player_data_id=\"' + playerId + '\"]');;
     element.parentNode.removeChild(element);
 } 
 
@@ -273,7 +274,7 @@ function getParentPlayerSettingsDiv(element){
 
 function getPlayerIdByValueChangeEvent(event){
     let playerNode = getParentPlayerSettingsDiv(event.target);
-    return playerNode.getAttribute('id');
+    return playerNode.getAttribute('player_data_id');
 }
 
 function updateNicknamePresentation(playerId){    
@@ -283,7 +284,13 @@ function updateNicknamePresentation(playerId){
         return;
     }
 
-    let playerDataNode = document.getElementById(playerId);
+    let playerDataNode = document.querySelector('[player_data_id=\"' + playerId + '\"]');
+
+    if(playerDataNode == null){
+        console.log("Can't find player data node " + playerId);
+        return;
+    }
+
     let nicknameInputs = playerDataNode.getElementsByClassName("nicknameInput");
 
     if (nicknameInputs.length > 0){
@@ -302,7 +309,13 @@ function updateCounterPresentation(playerId){
         return;
     }
     
-    let playerDataNode = document.getElementById(playerId);
+    let playerDataNode = document.querySelector('[player_data_id=\"' + playerId + '\"]');
+
+    if(playerDataNode == null){
+        console.log("Can't find player data node " + playerId);
+        return;
+    }
+
     let valueInputs = playerDataNode.getElementsByClassName("counterValueInput");
 
     if (valueInputs.length > 0){
