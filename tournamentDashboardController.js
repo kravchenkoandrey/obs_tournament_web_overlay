@@ -116,8 +116,12 @@ function handlePlayerConnectionCommand(playerId){
         }
         
         playerSection.appendChild(playerSettingsElement);
+        sortChildsByAttributeValue(playerSection, "id");
         if(!players.hasOwnProperty(playerId)){
             players[playerId] = newPlayerDataObject();
+        }
+        else if(players[playerId]["hidden"]){
+            players[playerId]["hidden"] = false;
         }
         updateCounterPresentation(playerId);
         updateNicknamePresentation(playerId);
@@ -151,7 +155,7 @@ function checkPongs(){
     let ids = Object.keys(players);
     ids.forEach(id => {
         let element = players[id];
-        if (element.hasOwnProperty("lastPongTime")){
+        if (!element['hidden'] && element.hasOwnProperty("lastPongTime")){
             if (curTime - element["lastPongTime"] > counterConnectionTimeout){
                 hidePlayer(id);
             }
@@ -166,7 +170,7 @@ function handlePongFromPlayer(playerId){
 }
 
 function newPlayerDataObject(){
-    return {value: 0, lastPongTime: Date.now(), nickname: ""};
+    return {value: 0, lastPongTime: Date.now(), nickname: "", hidden: false};
 }
 
 function deletePlayer(playerId){ 
@@ -175,6 +179,8 @@ function deletePlayer(playerId){
 }
 
 function hidePlayer(playerId){
+    let playerData = players[playerId];
+    playerData["hidden"] = true;
     let element = document.getElementById(playerId);
     element.parentNode.removeChild(element);
 } 
@@ -356,3 +362,40 @@ function loadCookies(){
         }
     });
 }
+
+function sortChildsByAttributeValue(parentElement, attributeName, ignoreHidden = true){
+    var attrValues = [];
+    let childArray = Array.prototype.slice.call(parentElement.childNodes);
+    
+    
+    for(let index = 0; index < childArray.length; index++){
+        let child = childArray[index];
+        if (child.nodeType != Node.TEXT_NODE && child.hasAttribute(attributeName) && (!child.hidden || !ignoreHidden)){
+            attrValues.push(child.getAttribute(attributeName));
+        }
+    };
+    let sortedAttrValues = quicksort(attrValues);
+    for(let index = 0; index < sortedAttrValues.length; index++){
+        let attrValue = sortedAttrValues[index];
+        var curElement = parentElement.querySelector('[' + attributeName + '=\"' + attrValue + '\"]');
+        parentElement.removeChild(curElement);
+        parentElement.appendChild(curElement);
+    }
+}
+
+function quicksort(array, ascending = true) {
+    if (array.length <= 1) {
+      return array;
+    }
+  
+    var pivot = array[0];
+    
+    var left = []; 
+    var right = [];
+  
+    for (var i = 1; i < array.length; i++) {
+      array[i] < pivot && ascending || array[i] > pivot && !ascending ? left.push(array[i]) : right.push(array[i]);
+    }
+  
+    return quicksort(left).concat(pivot, quicksort(right));
+  };
